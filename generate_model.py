@@ -71,7 +71,7 @@ if __name__ == '__main__':
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
 
-    # Remove the login, link column
+    # Remove the id, login, link column
 
     X = np.delete(X, 0, axis=1)
     X = np.delete(X, 0, axis=1)
@@ -87,9 +87,13 @@ if __name__ == '__main__':
 
 
 
+    # Normalize y (min-max)
+    y = (y - np.min(y)) / (np.max(y)-np.min(y))
+
     # apply sigmoid function to y
     y = np.expand_dims(y, axis=1)
     y = 1 / (1 + np.exp(-y))
+
 
     # Split the data into training and testing
     mask = np.random.rand(len(X)) < 0.8
@@ -103,11 +107,15 @@ if __name__ == '__main__':
     model = NN()
     model.train(X_train, y_train)
 
-    # make a histogram of the difference between the predicted and the actual values
+    # get accuracy
+    diff = 0.01
     y_pred = model.predict(X_test)
     y_pred = y_pred.flatten()
     y_test = y_test.flatten()
+    accuracy = np.mean(np.abs(y_pred - y_test) < diff)
+    print(f'Accuracy (below {diff}): {accuracy}')
 
+    # make a histogram of the difference between the predicted and the actual values
     import matplotlib.pyplot as plt
     plt.hist(y_pred - y_test, bins=50)
     plt.show()
